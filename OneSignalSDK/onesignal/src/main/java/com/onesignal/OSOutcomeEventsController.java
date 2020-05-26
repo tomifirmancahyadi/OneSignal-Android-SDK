@@ -183,7 +183,7 @@ class OSOutcomeEventsController {
                                            @NonNull final float weight,
                                            @NonNull List<OSInfluence> influences,
                                            @Nullable final OneSignal.OutcomeCallback callback) {
-        final long timestampSeconds = System.currentTimeMillis() / 1000;
+        final long timestampSeconds = OneSignal.getTime().getCurrentTimeMillis() / 1000;
         final int deviceType = new OSUtils().getDeviceType();
         final String appId = OneSignal.appId;
 

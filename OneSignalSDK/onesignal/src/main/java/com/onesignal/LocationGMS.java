@@ -100,7 +100,7 @@ class LocationGMS {
       if (!hasLocationPermission(context) || !OneSignal.shareLocation)
          return false;
 
-      long lastTime = System.currentTimeMillis() - getLastLocationTime();
+      long lastTime = OneSignal.getTime().getCurrentTimeMillis() - getLastLocationTime();
       long minTime = 1_000 * (OneSignal.isForeground() ? TIME_FOREGROUND_SEC : TIME_BACKGROUND_SEC);
       long scheduleTime = minTime - lastTime;
 
@@ -335,7 +335,7 @@ class LocationGMS {
          }
       }
       // Save last time so even if a failure we trigger the same schedule update
-      setLastLocationTime(System.currentTimeMillis());
+      setLastLocationTime(OneSignal.getTime().getCurrentTimeMillis());
    }
 
    private static void fireCompleteForLocation(Location location) {

@@ -114,7 +114,7 @@ class OneSignalSyncServiceUtils {
     */
    private static synchronized void scheduleSyncTask(Context context, long delayMs) {
       if (nextScheduledSyncTimeMs != 0 &&
-            System.currentTimeMillis() + delayMs > nextScheduledSyncTimeMs)
+            OneSignal.getTime().getCurrentTimeMillis() + delayMs > nextScheduledSyncTimeMs)
          return;
 
       if (delayMs < 5_000)
@@ -124,7 +124,7 @@ class OneSignalSyncServiceUtils {
          scheduleSyncServiceAsJob(context, delayMs);
       else
          scheduleSyncServiceAsAlarm(context, delayMs);
-      nextScheduledSyncTimeMs = System.currentTimeMillis() + delayMs;
+      nextScheduledSyncTimeMs = OneSignal.getTime().getCurrentTimeMillis() + delayMs;
    }
 
    private static boolean hasBootPermission(Context context) {
@@ -168,7 +168,7 @@ class OneSignalSyncServiceUtils {
 
       PendingIntent pendingIntent = syncServicePendingIntent(context);
       AlarmManager alarm = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
-      long triggerAtMs = System.currentTimeMillis() + delayMs;
+      long triggerAtMs = OneSignal.getTime().getCurrentTimeMillis() + delayMs;
       alarm.set(AlarmManager.RTC_WAKEUP,  triggerAtMs + delayMs, pendingIntent);
    }
 

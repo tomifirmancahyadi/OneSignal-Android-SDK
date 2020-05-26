@@ -11,6 +11,7 @@ import android.os.Looper;
 import android.os.SystemClock;
 import android.support.annotation.Nullable;
 
+import com.onesignal.MockOSTime;
 import com.onesignal.OneSignalDb;
 import com.onesignal.OneSignalPackagePrivateHelper;
 import com.onesignal.OneSignalPackagePrivateHelper.OSTestInAppMessage;
@@ -45,7 +46,6 @@ import org.json.JSONException;
 import org.robolectric.Robolectric;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.shadows.ShadowApplication;
-import org.robolectric.shadows.ShadowSystemClock;
 import org.robolectric.util.Scheduler;
 
 import java.util.ArrayList;
@@ -224,11 +224,11 @@ public class TestHelpers {
       StaticResetHelper.restSetStaticFields();
    }
 
-   static void restartAppAndElapseTimeToNextSession() throws Exception {
+   static void restartAppAndElapseTimeToNextSession(MockOSTime time) throws Exception {
       stopAllOSThreads();
       flushBufferedSharedPrefs();
       StaticResetHelper.restSetStaticFields();
-      advanceSystemTimeBy(31);
+      advanceSystemAndElapsedTimeBy(time,31);
    }
 
    static ArrayList<HashMap<String, Object>> getAllNotificationRecords(OneSignalDb db) {
@@ -464,22 +464,19 @@ public class TestHelpers {
       return iams;
    }
 
-   /**
-    * Calling setNanoTime ends up locking time to zero.
-    * NOTE: This setNanoTime is going away in future robolectric versions
-    */
-   static void lockTimeTo(long sec) {
-      long nano = sec * 1_000L * 1_000L;
-      ShadowSystemClock.setNanoTime(nano);
-   }
-
    static void resetSystemClock() {
       SystemClock.setCurrentTimeMillis(System.currentTimeMillis());
    }
 
-   static void advanceSystemTimeBy(long sec) {
+   static void advanceSystemTimeBy(MockOSTime time, long sec) {
       long ms = sec * 1_000L;
-      SystemClock.setCurrentTimeMillis(ShadowSystemClock.currentTimeMillis() + ms);
+      time.setMockedTime(time.getCurrentTimeMillis() + ms);
+   }
+
+   static void advanceSystemAndElapsedTimeBy(MockOSTime time, long sec) {
+      long ms = sec * 1_000L;
+      time.setMockedElapsedTime(time.getCurrentTimeMillis() + ms);
+      advanceSystemTimeBy(time, sec);
    }
 
    public static void assertMainThread() {

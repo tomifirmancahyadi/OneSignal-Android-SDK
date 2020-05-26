@@ -5,13 +5,11 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.os.Build;
-import android.support.annotation.RequiresApi;
+
+import com.onesignal.OneSignalDbContract.NotificationTable;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import com.onesignal.OneSignalDbContract.NotificationTable;
 
 class NotificationSummaryManager {
    

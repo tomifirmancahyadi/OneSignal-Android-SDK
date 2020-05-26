@@ -27,20 +27,6 @@
 
 package com.onesignal;
 
-import java.lang.reflect.Field;
-import java.math.BigInteger;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.security.SecureRandom;
-import java.util.Random;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.R.drawable;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -67,6 +53,20 @@ import android.text.style.StyleSpan;
 import android.widget.RemoteViews;
 
 import com.onesignal.OneSignalDbContract.NotificationTable;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.lang.reflect.Field;
+import java.math.BigInteger;
+import java.net.URL;
+import java.security.SecureRandom;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Random;
 
 import static com.onesignal.OSUtils.getResourceString;
 

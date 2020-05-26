@@ -30,9 +30,8 @@ package com.onesignal;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.util.Base64;
-
 import android.support.annotation.NonNull;
+import android.util.Base64;
 
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;

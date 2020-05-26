@@ -35,7 +35,6 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
-import android.os.PersistableBundle;
 import android.support.annotation.Nullable;
 import android.support.v4.content.WakefulBroadcastReceiver;
 
@@ -185,7 +184,7 @@ public class GcmBroadcastReceiver extends WakefulBroadcastReceiver {
 
    private static BundleCompat setCompatBundleForServer(Bundle bundle, BundleCompat taskExtras) {
       taskExtras.putString("json_payload", NotificationBundleProcessor.bundleAsJSONObject(bundle).toString());
-      taskExtras.putLong("timestamp", System.currentTimeMillis() / 1000L);
+      taskExtras.putLong("timestamp", OneSignal.getTime().getCurrentTimeMillis() / 1000L);
       return taskExtras;
    }
 }

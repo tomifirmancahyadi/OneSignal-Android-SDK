@@ -1,14 +1,14 @@
 package com.onesignal;
 
-import com.onesignal.OneSignalDbContract.NotificationTable;
-import com.onesignal.influence.model.OSInfluenceChannel;
-import com.onesignal.outcomes.OSOutcomeTableProvider;
-
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Process;
 import android.support.annotation.WorkerThread;
+
+import com.onesignal.OneSignalDbContract.NotificationTable;
+import com.onesignal.influence.model.OSInfluenceChannel;
+import com.onesignal.outcomes.OSOutcomeTableProvider;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -75,7 +75,7 @@ class OneSignalCacheCleaner {
 
                 String whereStr = OneSignalDbContract.InAppMessageTable.COLUMN_NAME_LAST_DISPLAY + " < ?";
 
-                String sixMonthsAgoInSeconds = String.valueOf((System.currentTimeMillis() / 1_000L) - IAM_CACHE_DATA_LIFETIME);
+                String sixMonthsAgoInSeconds = String.valueOf((OneSignal.getTime().getCurrentTimeMillis() / 1_000L) - IAM_CACHE_DATA_LIFETIME);
                 String[] whereArgs = new String[]{sixMonthsAgoInSeconds};
 
                 Set<String> oldMessageIds = OSUtils.newConcurrentSet();
@@ -141,7 +141,7 @@ class OneSignalCacheCleaner {
     private static void cleanCachedNotifications(SQLiteDatabase writableDb) {
         String whereStr = NotificationTable.COLUMN_NAME_CREATED_TIME + " < ?";
 
-        String sevenDaysAgoInSeconds = String.valueOf((System.currentTimeMillis() / 1_000L) - NOTIFICATION_CACHE_DATA_LIFETIME);
+        String sevenDaysAgoInSeconds = String.valueOf((OneSignal.getTime().getCurrentTimeMillis() / 1_000L) - NOTIFICATION_CACHE_DATA_LIFETIME);
         String[] whereArgs = new String[]{ sevenDaysAgoInSeconds };
 
         writableDb.delete(

@@ -51,6 +51,7 @@ import android.widget.Button;
 import com.onesignal.BundleCompat;
 import com.onesignal.GcmBroadcastReceiver;
 import com.onesignal.GcmIntentService;
+import com.onesignal.MockOSTime;
 import com.onesignal.MockOneSignalDBHelper;
 import com.onesignal.NotificationExtenderService;
 import com.onesignal.OSNotification;
@@ -114,6 +115,7 @@ import static com.onesignal.OneSignalPackagePrivateHelper.NotificationBundleProc
 import static com.onesignal.OneSignalPackagePrivateHelper.NotificationBundleProcessor_ProcessFromGCMIntentService_NoWrap;
 import static com.onesignal.OneSignalPackagePrivateHelper.NotificationOpenedProcessor_processFromContext;
 import static com.onesignal.OneSignalPackagePrivateHelper.NotificationSummaryManager_updateSummaryNotificationAfterChildRemoved;
+import static com.onesignal.OneSignalPackagePrivateHelper.OneSignal_setTime;
 import static com.onesignal.OneSignalPackagePrivateHelper.createInternalPayloadBundle;
 import static com.onesignal.ShadowRoboNotificationManager.getNotificationsInGroup;
 import static com.test.onesignal.RestClientAsserts.assertReportReceivedAtIndex;
@@ -131,7 +133,6 @@ import static org.junit.Assert.assertThat;
 import static org.robolectric.Shadows.shadowOf;
 
 @Config(packageName = "com.onesignal.example",
-        instrumentedPackages = { "com.onesignal" },
         shadows = {
             ShadowRoboNotificationManager.class,
             ShadowOneSignalRestClient.class,
@@ -154,6 +155,7 @@ public class GenerateNotificationRunner {
    private static final String notifMessage = "Robo test message";
 
    private MockOneSignalDBHelper dbHelper;
+   private MockOSTime time;
 
    @BeforeClass // Runs only once, before any tests
    public static void setUpClass() throws Exception {
@@ -168,6 +170,7 @@ public class GenerateNotificationRunner {
       blankActivity = blankActivityController.get();
       blankActivity.getApplicationInfo().name = "UnitTestApp";
       dbHelper = new MockOneSignalDBHelper(RuntimeEnvironment.application);
+      time = new MockOSTime();
 
       overrideNotificationId = -1;
       
@@ -178,6 +181,8 @@ public class GenerateNotificationRunner {
       NotificationManager notificationManager = OneSignalNotificationManagerPackageHelper.getNotificationManager(blankActivity);
       notificationManager.cancelAll();
       NotificationRestorer.restored = false;
+
+      OneSignal_setTime(time);
    }
 
    @AfterClass
@@ -274,7 +279,7 @@ public class GenerateNotificationRunner {
       NotificationBundleProcessor_ProcessFromGCMIntentService(blankActivity, bundle, null);
    
       // Go forward 4 weeks
-      advanceSystemTimeBy(2_419_202);
+      advanceSystemTimeBy(time,2_419_202);
       
       // Display a 3 normal notification.
       NotificationBundleProcessor_ProcessFromGCMIntentService(blankActivity, getBaseNotifBundle("UUID3"), null);
@@ -749,7 +754,6 @@ public class GenerateNotificationRunner {
       assertEquals(notifMessage, postedSummaryNotification.getShadow().getContentText());
       assertEquals(Notification.FLAG_GROUP_SUMMARY, postedSummaryNotification.notif.flags & Notification.FLAG_GROUP_SUMMARY);
    }
-   
 
    @Test
    public void shouldHandleBasicNotifications() throws Exception {
@@ -791,10 +795,11 @@ public class GenerateNotificationRunner {
 
       // Go forward 4 weeks
       // Note: Does not effect the SQL function strftime
-      advanceSystemTimeBy(2_419_202);
+      advanceSystemTimeBy(time,2_419_202);
 
       // Restart the app so OneSignalCacheCleaner can clean out old notifications
       fastColdRestartApp();
+      OneSignal_setTime(time);
       threadAndTaskWait();
 
       // Display a 3rd notification
@@ -822,7 +827,7 @@ public class GenerateNotificationRunner {
 
       // Go forward 1 week
       // Note: Does not effect the SQL function strftime
-      advanceSystemTimeBy(604_801);
+      advanceSystemTimeBy(time,604_801);
 
       // Restorer should not fire service since the notification is over 1 week old.
       NotificationRestorer.restore(blankActivity); NotificationRestorer.restored = false;
@@ -853,7 +858,7 @@ public class GenerateNotificationRunner {
       assertRestoreRan();
 
       // Go forward just past the TTL of the notification
-      advanceSystemTimeBy(ttl + 1);
+      advanceSystemTimeBy(time,ttl + 1);
       restoreNotifications();
       if (should)
          assertRestoreRan();
@@ -877,7 +882,7 @@ public class GenerateNotificationRunner {
       NotificationBundleProcessor_ProcessFromGCMIntentService(blankActivity, getBaseNotifBundle(), null);
 
       // Go forward 1 week
-      advanceSystemTimeBy(604_801);
+      advanceSystemTimeBy(time,604_801);
 
       // Should not count as a badge
       SQLiteDatabase readableDb = dbHelper.getSQLiteDatabaseWithRetries();

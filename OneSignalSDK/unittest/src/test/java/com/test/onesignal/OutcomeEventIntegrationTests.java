@@ -7,6 +7,7 @@ import android.support.annotation.NonNull;
 
 import com.onesignal.MockOSLog;
 import com.onesignal.MockOSSharedPreferences;
+import com.onesignal.MockOSTime;
 import com.onesignal.MockOneSignalDBHelper;
 import com.onesignal.MockSessionManager;
 import com.onesignal.OSNotificationOpenResult;
@@ -43,6 +44,7 @@ import org.robolectric.RuntimeEnvironment;
 import org.robolectric.android.controller.ActivityController;
 import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowLog;
+import org.robolectric.shadows.ShadowPausedSystemClock;
 
 import java.util.Arrays;
 import java.util.List;
@@ -51,6 +53,7 @@ import static com.onesignal.OneSignalPackagePrivateHelper.GcmBroadcastReceiver_o
 import static com.onesignal.OneSignalPackagePrivateHelper.OneSignal_getSessionListener;
 import static com.onesignal.OneSignalPackagePrivateHelper.OneSignal_setSessionManager;
 import static com.onesignal.OneSignalPackagePrivateHelper.OneSignal_setSharedPreferences;
+import static com.onesignal.OneSignalPackagePrivateHelper.OneSignal_setTime;
 import static com.onesignal.OneSignalPackagePrivateHelper.OneSignal_setTrackerFactory;
 import static com.test.onesignal.GenerateNotificationRunner.getBaseNotifBundle;
 import static com.test.onesignal.RestClientAsserts.assertMeasureAtIndex;
@@ -59,6 +62,7 @@ import static com.test.onesignal.RestClientAsserts.assertOnFocusAtIndex;
 import static com.test.onesignal.RestClientAsserts.assertOnFocusAtIndexDoesNotHaveKeys;
 import static com.test.onesignal.RestClientAsserts.assertOnFocusAtIndexForPlayerId;
 import static com.test.onesignal.RestClientAsserts.assertRestCalls;
+import static com.test.onesignal.TestHelpers.advanceSystemAndElapsedTimeBy;
 import static com.test.onesignal.TestHelpers.advanceSystemTimeBy;
 import static com.test.onesignal.TestHelpers.afterTestCleanup;
 import static com.test.onesignal.TestHelpers.fastColdRestartApp;
@@ -72,6 +76,7 @@ import static junit.framework.Assert.assertTrue;
 
 @Config(packageName = "com.onesignal.example",
         shadows = {
+                ShadowPausedSystemClock.class,
                 ShadowOneSignalRestClient.class,
                 ShadowPushRegistratorGCM.class,
                 ShadowOSUtils.class,
@@ -81,7 +86,6 @@ import static junit.framework.Assert.assertTrue;
                 ShadowNotificationManagerCompat.class,
                 ShadowJobService.class
         },
-        instrumentedPackages = {"com.onesignal"},
         sdk = 26)
 @RunWith(RobolectricTestRunner.class)
 public class OutcomeEventIntegrationTests {
@@ -95,6 +99,7 @@ public class OutcomeEventIntegrationTests {
     private static String notificationOpenedMessage;
     private MockOneSignalDBHelper dbHelper;
     private MockOSLog logger = new MockOSLog();
+    private MockOSTime time;
     private MockSessionManager sessionManager;
     private OneSignalPackagePrivateHelper.OSSharedPreferencesWrapper preferences;
     private OSTrackerFactory trackerFactory;
@@ -137,6 +142,7 @@ public class OutcomeEventIntegrationTests {
     public void beforeEachTest() throws Exception {
         blankActivityController = Robolectric.buildActivity(BlankActivity.class).create();
         blankActivity = blankActivityController.get();
+        time = new MockOSTime();
         dbHelper = new MockOneSignalDBHelper(RuntimeEnvironment.application);
         preferences = new OneSignalPackagePrivateHelper.OSSharedPreferencesWrapper();
         trackerFactory = new OSTrackerFactory(preferences, logger);
@@ -195,7 +201,7 @@ public class OutcomeEventIntegrationTests {
         // Background app for 30 seconds
         blankActivityController.pause();
         threadAndTaskWait();
-        advanceSystemTimeBy(31);
+        advanceSystemTimeBy(time,31);
 
         // Click notification
         OneSignal.handleNotificationOpen(blankActivity, new JSONArray("[{ \"alert\": \"Test Msg\", \"custom\": { \"i\": \"UUID\" } }]"), false, ONESIGNAL_NOTIFICATION_ID + "2");
@@ -228,7 +234,7 @@ public class OutcomeEventIntegrationTests {
         // Background app for attribution window time
         blankActivityController.pause();
         threadAndTaskWait();
-        advanceSystemTimeBy(1_441L * 60L);
+        advanceSystemTimeBy(time,24L * 60 * 60L);
 
         // Foreground app
         blankActivityController.resume();
@@ -324,7 +330,7 @@ public class OutcomeEventIntegrationTests {
         GcmBroadcastReceiver_onReceived(blankActivity, bundle);
 
         // Wait 31 seconds to start new session
-        advanceSystemTimeBy(31);
+        advanceSystemTimeBy(time,31);
 
         // Foreground app will start a new session upgrade
         blankActivityController.resume();
@@ -385,7 +391,7 @@ public class OutcomeEventIntegrationTests {
         GcmBroadcastReceiver_onReceived(blankActivity, bundle);
 
         // Wait 31 seconds to start new session
-        advanceSystemTimeBy(31);
+        advanceSystemTimeBy(time,31);
 
         // Foreground app will start a new session upgrade
         blankActivityController.resume();
@@ -434,7 +440,7 @@ public class OutcomeEventIntegrationTests {
         threadAndTaskWait();
 
         // Wait 31 seconds to start new session
-        advanceSystemTimeBy(31);
+        advanceSystemTimeBy(time,31);
 
         // Foreground app
         blankActivityController.resume();
@@ -487,7 +493,7 @@ public class OutcomeEventIntegrationTests {
         threadAndTaskWait();
 
         // Wait 31 seconds to start new session
-        advanceSystemTimeBy(31);
+        advanceSystemTimeBy(time,31);
 
         // Foreground app
         blankActivityController.resume();
@@ -623,10 +629,11 @@ public class OutcomeEventIntegrationTests {
 
     @Test
     public void testDirectSession_willOverrideIndirectSession_whenAppIsInBackground() throws Exception {
+        advanceSystemAndElapsedTimeBy(time,0);
         foregroundAppAfterReceivingNotification();
 
         // Foreground for 10 seconds
-        advanceSystemTimeBy(10);
+        advanceSystemAndElapsedTimeBy(time,10);
 
         // Make sure session is INDIRECT
         assertNotificationChannelIndirectInfluence(1);
@@ -696,7 +703,7 @@ public class OutcomeEventIntegrationTests {
         threadAndTaskWait();
 
         // Wait 31 seconds
-        advanceSystemTimeBy(31);
+        advanceSystemTimeBy(time,31);
 
         // Foreground app through icon before new session
         blankActivityController.resume();
@@ -773,10 +780,11 @@ public class OutcomeEventIntegrationTests {
 
     @Test
     public void testIndirectSession_sendsOnFocusFromSyncJob_after10SecondSession() throws Exception {
+        advanceSystemAndElapsedTimeBy(time,0);
         foregroundAppAfterReceivingNotification();
 
         // App in foreground for 10 seconds
-        advanceSystemTimeBy(10);
+        advanceSystemAndElapsedTimeBy(time,10);
 
         // Background app
         // Sync job will be scheduled here but not run yet
@@ -795,10 +803,11 @@ public class OutcomeEventIntegrationTests {
 
     @Test
     public void testIndirectSession_sendsOnFocusFromSyncJob_evenAfterKillingApp_after10SecondSession() throws Exception {
+        advanceSystemAndElapsedTimeBy(time,0);
         foregroundAppAfterReceivingNotification();
 
         // App in foreground for 10 seconds
-        advanceSystemTimeBy(10);
+        advanceSystemAndElapsedTimeBy(time,10);
 
         // Background app
         // Sync job will be scheduled here but not run yet
@@ -819,11 +828,12 @@ public class OutcomeEventIntegrationTests {
 
     @Test
     public void testIndirectSession_sendsOnFocusAttributionForPushPlayer_butNotEmailPlayer() throws Exception {
+        advanceSystemAndElapsedTimeBy(time,0);
         OneSignal.setEmail("test@test.com");
         foregroundAppAfterReceivingNotification();
 
         // App in foreground for 10 seconds
-        advanceSystemTimeBy(10);
+        advanceSystemAndElapsedTimeBy(time,10);
 
         // Background app
         // Sync job will be scheduled here but not run yet
@@ -865,7 +875,7 @@ public class OutcomeEventIntegrationTests {
         indirectNotificationIds.put(ONESIGNAL_NOTIFICATION_ID + "2");
 
         // App in background for 31 seconds to trigger new session
-        advanceSystemTimeBy(31);
+        advanceSystemTimeBy(time,31);
 
         // Foreground app through icon
         blankActivityController.resume();
@@ -905,7 +915,7 @@ public class OutcomeEventIntegrationTests {
         threadAndTaskWait();
 
         // Wait for 30 seconds to trigger new session
-        advanceSystemTimeBy(31);
+        advanceSystemTimeBy(time,31);
 
         // Receive notification
         Bundle bundle = getBaseNotifBundle(ONESIGNAL_NOTIFICATION_ID + "2");
@@ -928,7 +938,7 @@ public class OutcomeEventIntegrationTests {
         assertEquals(5, getAllUniqueOutcomeNotificationRecordsDB(dbHelper).size());
 
         // Wait a week to clear cached notifications
-        advanceSystemTimeBy(604_800);
+        advanceSystemTimeBy(time,604_800);
 
         // Restart the app and re-init OneSignal
         fastColdRestartApp();
@@ -1063,6 +1073,7 @@ public class OutcomeEventIntegrationTests {
         OneSignal.setLogLevel(OneSignal.LOG_LEVEL.VERBOSE, OneSignal.LOG_LEVEL.NONE);
         ShadowOSUtils.subscribableStatus = 1;
         // Set mocks for mocking behaviour
+        OneSignal_setTime(time);
         OneSignal_setTrackerFactory(trackerFactory);
         OneSignal_setSessionManager(sessionManager);
         OneSignal.init(blankActivity, "123456789", ONESIGNAL_APP_ID, getNotificationOpenedHandler());
@@ -1076,6 +1087,7 @@ public class OutcomeEventIntegrationTests {
         OneSignal.setLogLevel(OneSignal.LOG_LEVEL.VERBOSE, OneSignal.LOG_LEVEL.NONE);
         ShadowOSUtils.subscribableStatus = 1;
         // Set mocks for mocking behaviour
+        OneSignal_setTime(time);
         OneSignal_setTrackerFactory(trackerFactory);
         OneSignal_setSessionManager(sessionManager);
         OneSignal.init(blankActivity, "123456789", ONESIGNAL_APP_ID, notificationOpenedHandler);

@@ -48,7 +48,6 @@ import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
 
 @Config(packageName = "com.onesignal.example",
-        instrumentedPackages = {"com.onesignal"},
         shadows = {
                 ShadowOneSignalDbHelper.class
         },

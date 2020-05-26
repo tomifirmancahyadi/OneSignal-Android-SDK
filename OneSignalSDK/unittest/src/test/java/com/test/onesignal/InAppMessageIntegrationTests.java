@@ -6,6 +6,7 @@ import android.app.Activity;
 import com.onesignal.InAppMessagingHelpers;
 import com.onesignal.MockOSLog;
 import com.onesignal.MockOSSharedPreferences;
+import com.onesignal.MockOSTime;
 import com.onesignal.MockOneSignalDBHelper;
 import com.onesignal.MockSessionManager;
 import com.onesignal.OSInAppMessageAction;
@@ -61,6 +62,7 @@ import static com.onesignal.OneSignalPackagePrivateHelper.OSTestTrigger.OSTrigge
 import static com.onesignal.OneSignalPackagePrivateHelper.OneSignal_getSessionListener;
 import static com.onesignal.OneSignalPackagePrivateHelper.OneSignal_setSessionManager;
 import static com.onesignal.OneSignalPackagePrivateHelper.OneSignal_setSharedPreferences;
+import static com.onesignal.OneSignalPackagePrivateHelper.OneSignal_setTime;
 import static com.onesignal.OneSignalPackagePrivateHelper.OneSignal_setTrackerFactory;
 import static com.test.onesignal.RestClientAsserts.assertMeasureOnV2AtIndex;
 import static com.test.onesignal.TestHelpers.advanceSystemTimeBy;
@@ -72,7 +74,6 @@ import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
 
 @Config(packageName = "com.onesignal.example",
-        instrumentedPackages = {"com.onesignal"},
         shadows = {
                 ShadowOneSignalRestClient.class,
                 ShadowPushRegistratorGCM.class,
@@ -100,6 +101,7 @@ public class InAppMessageIntegrationTests {
     private static final long SIX_MONTHS_TIME_SECONDS = 6 * 30 * 24 * 60 * 60;
     private static final int LIMIT = 5;
     private static final int DELAY = 60;
+    private MockOSTime time;
     private MockOSSharedPreferences preferences;
     private OSTrackerFactory trackerFactory;
     private MockSessionManager sessionManager;
@@ -125,6 +127,7 @@ public class InAppMessageIntegrationTests {
     @Before
     public void beforeEachTest() throws Exception {
         ShadowDynamicTimer.shouldScheduleTimers = true;
+        time = new MockOSTime();
         preferences = new MockOSSharedPreferences();
         trackerFactory = new OSTrackerFactory(preferences, new MockOSLog());
         sessionManager = new MockSessionManager(OneSignal_getSessionListener(), trackerFactory, new MockOSLog());
@@ -1142,7 +1145,7 @@ public class InAppMessageIntegrationTests {
         assertTrue(lastDisplayTime > 0);
 
         // Change time for delay to be covered
-        advanceSystemTimeBy(DELAY);
+        advanceSystemTimeBy(time, DELAY);
         // Set same trigger, should display again
         OneSignal.addTrigger("test_1", 2);
         assertEquals(1, OneSignalPackagePrivateHelper.getInAppMessageDisplayQueue().size());
@@ -1188,7 +1191,7 @@ public class InAppMessageIntegrationTests {
             add(message);
         }});
         // Change time for delay to be covered
-        advanceSystemTimeBy(DELAY);
+        advanceSystemTimeBy(time, DELAY);
 
         // Init OneSignal with IAM with redisplay
         OneSignalInit();
@@ -1209,7 +1212,7 @@ public class InAppMessageIntegrationTests {
         threadAndTaskWait();
 
         // Change time for delay to be covered
-        advanceSystemTimeBy(DELAY * 2);
+        advanceSystemTimeBy(time, DELAY * 2);
         // Add trigger to call evaluateInAppMessage
         OneSignal.addTrigger("test_1", 2);
         // IAM shouldn't display again because It don't have triggers
@@ -1242,7 +1245,7 @@ public class InAppMessageIntegrationTests {
 
         OneSignal.addTrigger("test_1", 2);
         // Wait for the delay between redisplay
-        advanceSystemTimeBy(DELAY);
+        advanceSystemTimeBy(time, DELAY);
         assertEquals(0, OneSignalPackagePrivateHelper.getInAppMessageDisplayQueue().size());
 
         // Remove trigger, IAM should display again
@@ -1312,7 +1315,7 @@ public class InAppMessageIntegrationTests {
         assertTrue(lastDisplayTime > 0);
 
         // Wait for the delay between redisplay
-        advanceSystemTimeBy(DELAY);
+        advanceSystemTimeBy(time, DELAY);
 
         // Set trigger, will evaluate IAMs again
         OneSignal.addTrigger("test_1", 2);
@@ -1357,7 +1360,7 @@ public class InAppMessageIntegrationTests {
         assertTrue(lastDisplayTime > 0);
 
         // Wait for the delay between redisplay
-        advanceSystemTimeBy(DELAY);
+        advanceSystemTimeBy(time, DELAY);
         // Swipe away app
         fastColdRestartApp();
         // Cold Start app
@@ -1627,6 +1630,7 @@ public class InAppMessageIntegrationTests {
     }
 
     private void OneSignalInit() {
+        OneSignal_setTime(time);
         OneSignal_setTrackerFactory(trackerFactory);
         OneSignal_setSessionManager(sessionManager);
         OneSignal.setLogLevel(OneSignal.LOG_LEVEL.DEBUG, OneSignal.LOG_LEVEL.NONE);

@@ -29,12 +29,12 @@ package com.onesignal;
 
 import android.support.annotation.Nullable;
 
-import org.json.JSONException;
-import org.json.JSONObject;
 import com.onesignal.OneSignal.ChangeTagsUpdateHandler;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.HashMap;
-import java.util.Iterator;
 
 class OneSignalStateSynchronizer {
 

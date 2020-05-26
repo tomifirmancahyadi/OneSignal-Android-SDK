@@ -111,6 +111,10 @@ public class OneSignalPackagePrivateHelper {
       return OneSignal.getSessionListener();
    }
 
+   public static void OneSignal_setTime(OSTime time) {
+      OneSignal.setTime(time);
+   }
+
    public static void OneSignal_setSharedPreferences(OSSharedPreferences preferences) {
       OneSignal.setSharedPreferences(preferences);
    }
@@ -377,8 +381,8 @@ public class OneSignalPackagePrivateHelper {
          this.displayStats.setLastDisplayTime(lastDisplayTime);
       }
 
-      public void setLastDisplayTimeToCurrent() {
-         this.displayStats.setLastDisplayTime(System.currentTimeMillis() / 1000);
+      public void setLastDisplayTimeToCurrent(OSTime time) {
+         this.displayStats.setLastDisplayTime(time.getCurrentTimeMillis() / 1000);
       }
 
       @Override

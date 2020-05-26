@@ -33,8 +33,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.support.annotation.NonNull;
 import android.os.Build;
+import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationManagerCompat;
 
 import com.onesignal.OneSignalDbContract.NotificationTable;

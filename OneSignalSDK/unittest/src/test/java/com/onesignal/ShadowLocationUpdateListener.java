@@ -3,7 +3,6 @@ package com.onesignal;
 import android.location.Location;
 
 import org.robolectric.annotation.Implements;
-import org.robolectric.annotation.RealObject;
 
 /**
  * Copyright 2017 OneSignal
