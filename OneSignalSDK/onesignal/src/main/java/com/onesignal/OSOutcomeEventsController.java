@@ -216,7 +216,7 @@ class OSOutcomeEventsController {
 
         OSOutcomeSource source = new OSOutcomeSource(directSourceBody, indirectSourceBody);
 
-        final OSOutcomeEventParams eventParams = new OSOutcomeEventParams(name, source, weight);
+        final OSOutcomeEventParams eventParams = new OSOutcomeEventParams(name, source, weight, 0);
 
         OneSignalApiResponseHandler responseHandler = new OneSignalApiResponseHandler() {
             @Override

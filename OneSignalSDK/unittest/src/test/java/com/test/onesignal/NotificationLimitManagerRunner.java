@@ -46,7 +46,6 @@ import static junit.framework.Assert.assertEquals;
         },
         sdk = 26
 )
-
 @RunWith(RobolectricTestRunner.class)
 public class NotificationLimitManagerRunner {
 

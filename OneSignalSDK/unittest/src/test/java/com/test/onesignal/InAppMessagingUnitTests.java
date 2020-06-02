@@ -68,7 +68,6 @@ import static junit.framework.Assert.assertTrue;
         },
         sdk = 26
 )
-
 @RunWith(RobolectricTestRunner.class)
 public class InAppMessagingUnitTests {
 

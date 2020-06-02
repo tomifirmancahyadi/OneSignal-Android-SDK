@@ -25,7 +25,6 @@ import static org.junit.Assert.assertEquals;
 @Config(packageName = "com.onesignal.example",
         sdk = 21
 )
-
 @RunWith(RobolectricTestRunner.class)
 public class OneSignalPrefsRunner {
    private static Activity blankActivity;

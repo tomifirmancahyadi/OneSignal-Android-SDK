@@ -53,7 +53,6 @@ import static junit.framework.Assert.assertTrue;
         },
         sdk = 26
 )
-
 @RunWith(RobolectricTestRunner.class)
 public class DatabaseRunner {
 
@@ -180,7 +179,7 @@ public class DatabaseRunner {
 
     private static final String SQL_CREATE_UNIQUE_OUTCOME_REVISION1_ENTRIES =
             "CREATE TABLE " + MockOSCachedUniqueOutcomeTable.OLD_TABLE_NAME + " (" +
-                    MockOSCachedUniqueOutcomeTable._ID + INTEGER_PRIMARY_KEY_TYPE + COMMA_SEP +
+                    MockOSCachedUniqueOutcomeTable.ID + INTEGER_PRIMARY_KEY_TYPE + COMMA_SEP +
                     MockOSCachedUniqueOutcomeTable.COLUMN_NAME_NOTIFICATION_ID + TEXT_TYPE + COMMA_SEP +
                     MockOSCachedUniqueOutcomeTable.COLUMN_NAME_NAME + TEXT_TYPE +
                     ");";

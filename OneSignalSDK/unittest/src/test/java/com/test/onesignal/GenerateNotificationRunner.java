@@ -145,7 +145,6 @@ import static org.robolectric.Shadows.shadowOf;
         },
         sdk = 21
 )
-
 @RunWith(RobolectricTestRunner.class)
 public class GenerateNotificationRunner {
    

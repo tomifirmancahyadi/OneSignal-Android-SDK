@@ -41,7 +41,6 @@ import static org.junit.Assert.assertNull;
             ShadowRoboNotificationManager.class},
          sdk = 26
 )
-
 @RunWith(RobolectricTestRunner.class)
 public class NotificationChannelManagerRunner {
 

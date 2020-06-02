@@ -52,7 +52,6 @@ import static junit.framework.Assert.assertTrue;
             ShadowFirebaseCloudMessaging.class },
         sdk = 21
 )
-
 @RunWith(RobolectricTestRunner.class)
 public class PushRegistratorRunner {
 
