@@ -58,6 +58,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static com.onesignal.OneSignalPackagePrivateHelper.OneSignal_clearRemoteParams;
 import static org.robolectric.Shadows.shadowOf;
 
 public class TestHelpers {
@@ -109,6 +110,7 @@ public class TestHelpers {
 
       ShadowOSUtils.resetStatics();
 
+      OneSignal_clearRemoteParams();
       lastException = null;
    }
 

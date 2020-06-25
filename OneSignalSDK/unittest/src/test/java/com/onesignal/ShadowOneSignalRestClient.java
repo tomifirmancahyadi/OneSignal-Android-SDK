@@ -94,6 +94,7 @@ public class ShadowOneSignalRestClient {
    public static boolean freezeResponses;
    private static ConcurrentHashMap<Object, PendingResponse> pendingResponses = new ConcurrentHashMap<>();
 
+   private static String remoteParamsGetHtmlResponse = null;
    private static final String IAM_GET_HTML_RESPONSE;
    static {
       String value = null;
@@ -131,6 +132,7 @@ public class ShadowOneSignalRestClient {
 
       freezeResponses = false;
       pendingResponses = new ConcurrentHashMap<>();
+      remoteParamsGetHtmlResponse = null;
    }
 
    public static void unFreezeResponses() {
@@ -168,6 +170,10 @@ public class ShadowOneSignalRestClient {
       for (JSONObject response : responses) {
          successfulGETResponses.add(response.toString(1));
       }
+   }
+
+   public static void setRemoteParamsGetHtmlResponse(JSONObject response) throws JSONException {
+      remoteParamsGetHtmlResponse = response.toString();
    }
 
    private static void freezeSyncCall() {
@@ -308,6 +314,9 @@ public class ShadowOneSignalRestClient {
          if (handleGetIAM(url, responseHandler))
             return;
 
+         if (handleRemoteParamsIfAvailable(url, responseHandler))
+            return;
+
          try {
             JSONObject getResponseJson = new JSONObject(
                "{\"awl_list\": {}, \"android_sender_id\": \"87654321\"}"
@@ -358,6 +367,14 @@ public class ShadowOneSignalRestClient {
          return false;
 
       responseHandler.onSuccess(IAM_GET_HTML_RESPONSE);
+      return true;
+   }
+
+   private static boolean handleRemoteParamsIfAvailable(final String url, final OneSignalRestClient.ResponseHandler responseHandler) {
+      if (remoteParamsGetHtmlResponse == null || !url.contains("android_params"))
+         return false;
+
+      responseHandler.onSuccess(remoteParamsGetHtmlResponse);
       return true;
    }
 }

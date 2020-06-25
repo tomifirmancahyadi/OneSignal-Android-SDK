@@ -107,6 +107,10 @@ public class OneSignalPackagePrivateHelper {
       OneSignal.sendPurchases(purchases, newAsExisting, responseHandler);
    }
 
+   public static void OneSignal_clearRemoteParams() {
+      OneSignal.getRemoteParamController().clearRemoteParams();
+   }
+
    public static OSSessionManager.SessionListener OneSignal_getSessionListener() {
       return OneSignal.getSessionListener();
    }
@@ -218,9 +222,24 @@ public class OneSignalPackagePrivateHelper {
    }
 
    public static boolean OneSignal_requiresUserPrivacyConsent() {
-      return OneSignal.requiresUserPrivacyConsent;
+      return OneSignal.isUserPrivacyConsentRequired();
    }
 
+   public static boolean OneSignal_locationShared() {
+      return OneSignal.shareLocation;
+   }
+
+   public static boolean OneSignal_areNotificationsEnabledForSubscribedState() {
+      return OneSignal.areNotificationsEnabledForSubscribedState();
+   }
+
+   public static boolean OneSignal_getDisableGMSMissingPrompt() {
+      return OneSignal.getDisableGMSMissingPrompt();
+   }
+
+   public static void OneSignal_setUserPrivacyConsentEnabled(boolean enable) {
+      OneSignal.setUserPrivacyConsentEnabled(enable);
+   }
    public static String OneSignal_appId() {
       return OneSignal.appId;
    }
